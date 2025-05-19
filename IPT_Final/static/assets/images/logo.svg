@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="50" viewBox="0 0 200 50">
+  <style>
+    .logo-text { font: bold 24px sans-serif; fill: #b66dff; }
+    .subtext { font: 12px sans-serif; fill: #3e4b5b; }
+  </style>
+  <text x="10" y="30" class="logo-text">RRS</text>
+  <text x="70" y="30" class="subtext">Room Reservation System</text>
+</svg> 

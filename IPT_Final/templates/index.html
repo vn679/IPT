@@ -1,0 +1,339 @@
+{% load static %}
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Room Reservation System</title>
+    
+    <!-- CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="shortcut icon" href="{% static 'images/favicon.png' %}" />
+    
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{% static 'js/off-canvas.js' %}"></script>
+  </head>
+  <body>
+    <div class="container-scroller">
+      <!-- Navbar -->
+      {% include '_navbar.html' %}
+      
+      <div class="container-fluid page-body-wrapper">
+        <!-- Sidebar -->
+        {% include '_sidebar.html' %}
+        
+        <!-- Main Panel -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+            <!-- Stats Cards Row -->
+            <div class="row mb-4">
+              <div class="col-md-4 stretch-card grid-margin">
+                <div class="card bg-danger text-white">
+                  <div class="card-body">
+                    <h4 class="font-weight-normal mb-3">Total Reservations <i class="mdi mdi-chart-line mdi-24px float-end"></i></h4>
+                    <h2 class="mb-5 total-reservations">{{ total_reservations }}</h2>
+                    <h6 class="card-text">Total reservations made</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 stretch-card grid-margin">
+                <div class="card bg-custom-blue text-white">
+                  <div class="card-body">
+                    <h4 class="font-weight-normal mb-3">Available Rooms <i class="mdi mdi-door mdi-24px float-end"></i></h4>
+                    <h2 class="mb-5 available-rooms">{{ available_rooms }}</h2>
+                    <h6 class="card-text">Rooms available today</h6>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 stretch-card grid-margin">
+                <div class="card bg-success text-white">
+                  <div class="card-body">
+                    <h4 class="font-weight-normal mb-3">Ongoing Reservations <i class="mdi mdi-clock mdi-24px float-end"></i></h4>
+                    <h2 class="mb-5 ongoing-reservations">{{ ongoing_reservations }}</h2>
+                    <h6 class="card-text">Currently active reservations</h6>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Charts Row -->
+            <div class="row mb-4">
+              <!-- Weekly Stats Chart -->
+              <div class="col-md-7 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <div class="clearfix mb-4">
+                      <h4 class="card-title float-start">Weekly Reservation Statistics</h4>
+                    </div>
+                    <div style="height: 250px; position: relative;">
+                      <canvas id="weekly-stats-chart"></canvas>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Course Distribution Chart -->
+              <div class="col-md-5 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title mb-4">Reservations by Course</h4>
+                    <div style="height: 250px; position: relative;">
+                      <canvas id="course-stats-chart"></canvas>
+                    </div>
+                    <div class="mt-4">
+                      <div class="d-flex flex-wrap justify-content-center gap-3" id="course-legend">
+                        {% for course, count in course_percentages.items %}
+                        <div class="px-3 py-2">
+                          <span class="badge course-badge {{ course }}"></span>
+                          <span class="ms-2">{{ course }} ({{ count }}%)</span>
+                        </div>
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <style>
+              .reservation-table tr {
+                transition: all 0.2s ease;
+              }
+              .reservation-table tr:hover {
+                background-color: rgba(0, 0, 0, 0.02);
+                transform: translateX(4px);
+              }
+              .reservation-badge {
+                transition: all 0.2s ease;
+              }
+              .reservation-badge:hover {
+                transform: scale(1.05);
+              }
+              .avatar-circle {
+                width: 36px;
+                height: 36px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s ease;
+              }
+              .avatar-circle:hover {
+                transform: scale(1.1);
+              }
+              .table-header {
+                position: relative;
+              }
+              .table-header::after {
+                content: '';
+                position: absolute;
+                left: 0;
+                bottom: 0;
+                width: 100%;
+                height: 2px;
+                background: linear-gradient(90deg, #1852AC 0%, rgba(24, 82, 172, 0.2) 100%);
+              }
+              .bg-custom-blue {
+                background-color: #2862BA !important;
+              }
+            </style>
+            
+            <!-- Recent Reservations Table -->
+            <div class="row mb-4">
+              <div class="col-12 grid-margin">
+                <div class="card shadow-sm border-0">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                      <div>
+                        <h4 class="card-title mb-1">Recent Reservations</h4>
+                        <p class="text-muted small mb-0">Showing latest {{ recent_reservations|length }} reservations</p>
+                      </div>
+                      <div class="d-flex gap-2">
+                        <div class="input-group input-group-sm">
+                          <span class="input-group-text bg-light border-0">
+                            <i class="mdi mdi-magnify"></i>
+                          </span>
+                          <input type="text" class="form-control form-control-sm border-0 bg-light" placeholder="Search reservations...">
+                        </div>
+                        <div class="dropdown">
+                          <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="mdi mdi-filter-variant"></i> Filter
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0">
+                            <li><a class="dropdown-item" href="#"><i class="mdi mdi-calendar-today me-2"></i>Today</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="mdi mdi-calendar-week me-2"></i>This Week</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="mdi mdi-calendar-month me-2"></i>This Month</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#"><i class="mdi mdi-refresh me-2"></i>Reset Filter</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="table-responsive">
+                      <table class="table reservation-table align-middle mb-0">
+                        <thead>
+                          <tr class="table-header">
+                            <th scope="col" class="border-0 py-3">Name</th>
+                            <th scope="col" class="border-0 py-3">Date & Time</th>
+                            <th scope="col" class="border-0 py-3">Attendees</th>
+                            <th scope="col" class="border-0 py-3">Course</th>
+                            <th scope="col" class="border-0 py-3">Status</th>
+                          </tr>
+                        </thead>
+                        <tbody class="border-0">
+                          {% for reservation in recent_reservations %}
+                          <tr>
+                            <td class="py-3">
+                              <div class="d-flex align-items-center">
+                                <div class="avatar-circle bg-primary bg-opacity-10 rounded-circle me-3">
+                                  <i class="mdi mdi-account fs-5 text-primary"></i>
+                                </div>
+                                <div>
+                                  <h6 class="mb-0">{{ reservation.name }}</h6>
+                                  <small class="text-muted">ID: #{{ reservation.id }}</small>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="py-3">
+                              <div class="d-flex flex-column">
+                                <div class="d-flex align-items-center mb-1">
+                                  <i class="mdi mdi-calendar me-2 text-primary"></i>
+                                  <span>{{ reservation.start_time|date:"F d, Y" }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                  <i class="mdi mdi-clock-outline me-2 text-primary"></i>
+                                  <span>{{ reservation.start_time|time:"h:i A" }}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td class="py-3">
+                              <div class="d-flex align-items-center">
+                                <div class="avatar-circle bg-success bg-opacity-10 rounded-circle me-3">
+                                  <i class="mdi mdi-account-group fs-5 text-success"></i>
+                                </div>
+                                <span class="fw-medium">{{ reservation.num_attendees }}</span>
+                              </div>
+                            </td>
+                            <td class="py-3">
+                              <span class="reservation-badge badge rounded-pill bg-primary bg-opacity-10 text-primary border-0 px-3 py-2">
+                                <i class="mdi mdi-school me-1"></i>
+                                {{ reservation.course }}
+                              </span>
+                            </td>
+                            <td class="py-3">
+                              {% if reservation.status == 'approved' %}
+                                <span class="reservation-badge badge rounded-pill bg-success bg-opacity-10 text-success border-0 px-3 py-2">
+                                  <i class="mdi mdi-check-circle me-1"></i>{{ reservation.status_display }}
+                                </span>
+                              {% elif reservation.status == 'pending' %}
+                                <span class="reservation-badge badge rounded-pill bg-warning bg-opacity-10 text-warning border-0 px-3 py-2">
+                                  <i class="mdi mdi-clock-outline me-1"></i>{{ reservation.status_display }}
+                                </span>
+                              {% else %}
+                                <span class="reservation-badge badge rounded-pill bg-danger bg-opacity-10 text-danger border-0 px-3 py-2">
+                                  <i class="mdi mdi-close-circle me-1"></i>{{ reservation.status_display }}
+                                </span>
+                              {% endif %}
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent Notifications -->
+            <div class="row mb-4">
+              <div class="col-md-12 grid-margin stretch-card">
+                <div class="card">
+                  <div class="card-body">
+                    <h4 class="card-title mb-4">Recent Notifications</h4>
+                    <div class="notification-list">
+                      {% for notification in recent_notifications %}
+                      <div class="preview-item border-bottom py-3">
+                        <div class="preview-item-content d-flex flex-grow">
+                          <div class="flex-grow">
+                            <p class="text-muted mb-2">{{ notification.created_at }}</p>
+                            <p class="preview-subject">{{ notification.message }}</p>
+                          </div>
+                        </div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Footer -->
+          {% include '_footer.html' %}
+        </div>
+      </div>
+    </div>
+    
+    <!-- Charts Initialization -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Weekly Stats Chart
+        const weeklyCtx = document.getElementById('weekly-stats-chart').getContext('2d');
+        new Chart(weeklyCtx, {
+          type: 'line',
+          data: {
+            labels: {{ days_of_week|safe }},
+            datasets: [{
+              label: 'Reservations',
+              data: {{ reservation_counts_list|safe }},
+              borderColor: '#1852AC',
+              tension: 0.4,
+              fill: false
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 1
+                }
+              }
+            }
+          }
+        });
+        
+        // Course Distribution Chart
+        const courseCtx = document.getElementById('course-stats-chart').getContext('2d');
+        new Chart(courseCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['IT', 'ENTREP', 'EDUC', 'ECE', 'BSAD', 'BSIS'],
+            datasets: [{
+              data: {{ course_stats|safe }},
+              backgroundColor: ['#808080', '#FFD700', '#1852AC', '#FF69B4', '#28a745', '#6f42c1']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              }
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

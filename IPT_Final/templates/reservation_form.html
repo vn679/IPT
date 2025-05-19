@@ -1,0 +1,567 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Reservation</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@6.5.95/css/materialdesignicons.min.css">
+    <!-- Poppins Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1852AC;
+            --primary-dark: #14448d;
+            --text-color: #2c3e50;
+            --light-gray: #f8f9fa;
+            --border-radius: 12px;
+        }
+
+        body {
+            background-color: var(--light-gray);
+            font-family: 'Poppins', sans-serif;
+            color: var(--text-color);
+            padding-top: 4rem;
+        }
+
+        .form-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-weight: 600;
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #6c757d !important;
+            font-size: 1.1rem;
+        }
+
+        .step-section {
+            background-color: var(--light-gray);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .step-section h4 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control, .form-select {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(0,0,0,0.1);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(24,82,172,0.15);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            border: none;
+            color: white;
+            padding: 12px 35px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(24,82,172,0.15);
+        }
+
+        .btn-submit:disabled {
+            background-color: #ccc;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .navbar {
+            background: var(--primary-color);
+            padding: 1rem 0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: 600;
+            font-size: 1.3rem;
+        }
+
+        .nav-link {
+            color: rgba(255,255,255,0.9) !important;
+            padding: 0.5rem 1rem;
+            margin: 0 0.2rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background: rgba(255,255,255,0.1);
+        }
+
+        .time-info {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 1.2rem;
+            border-radius: var(--border-radius);
+            margin-top: 1rem;
+        }
+
+        .time-info p {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .time-info i {
+            font-size: 1.2rem;
+            color: #856404;
+        }
+
+        .alert {
+            border-radius: var(--border-radius);
+            padding: 1rem 1.25rem;
+        }
+
+        #roomAvailabilityInfo .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+
+        #roomAvailabilityInfo .border-bottom {
+            border-color: rgba(0,0,0,0.05) !important;
+        }
+
+        /* Modal Styling */
+        .modal-content {
+            border-radius: var(--border-radius);
+            border: none;
+        }
+
+        .modal-header {
+            border-top-left-radius: var(--border-radius);
+            border-top-right-radius: var(--border-radius);
+            background: var(--primary-color);
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .btn-light {
+            background: var(--light-gray);
+            border: 1px solid rgba(0,0,0,0.1);
+            color: var(--text-color);
+            padding: 12px 35px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-light:hover {
+            background: #e9ecef;
+            border-color: rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 768px) {
+            .form-container {
+                padding: 1.5rem;
+            }
+
+            .step-section {
+                padding: 1.5rem;
+            }
+
+            .header {
+                margin-bottom: 2rem;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand ps-2" href="/">Room Reservation System</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i class="mdi mdi-view-dashboard"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'make_reservation' %}"><i class="mdi mdi-calendar-plus"></i> Make Reservation</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="form-container">
+                    <div class="header">
+                        <h1>Room Reservation</h1>
+                        <p>Fill in the details below to request a room reservation</p>
+                    </div>
+
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} fade show">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="reservationForm">
+                        {% csrf_token %}
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger fade show">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                        <!-- Step 1: Date and Time Selection -->
+                        <div class="step-section">
+                            <h4><i class="mdi mdi-calendar-clock"></i> 1. Select Date and Time</h4>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="{{ form.reservation_date.id_for_label }}" class="form-label">{{ form.reservation_date.label }}</label>
+                                        {{ form.reservation_date }}
+                                        {% if form.reservation_date.errors %}
+                                        <div class="text-danger mt-2">
+                                            {% for error in form.reservation_date.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group mb-3">
+                                        <label for="{{ form.reservation_time.id_for_label }}" class="form-label">{{ form.reservation_time.label }}</label>
+                                        {{ form.reservation_time }}
+                                        {% if form.reservation_time.errors %}
+                                        <div class="text-danger mt-2">
+                                            {% for error in form.reservation_time.errors %}
+                                                {{ error }}
+                                            {% endfor %}
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">End Time</label>
+                                <input type="text" id="end_time" class="form-control" readonly>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Room Selection -->
+                        <div class="step-section">
+                            <h4><i class="mdi mdi-door"></i> 2. Select a Room</h4>
+                            <div class="form-group">
+                                <label for="{{ form.room.id_for_label }}" class="form-label">{{ form.room.label }}</label>
+                                <select name="room" id="{{ form.room.id_for_label }}" class="form-select" disabled>
+                                    <option value="">Please select date and time first</option>
+                                </select>
+                                <div id="roomAvailabilityInfo" class="mt-3"></div>
+                                {% if form.room.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.room.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Additional Details -->
+                        <div class="step-section">
+                            <h4><i class="mdi mdi-account-details"></i> 3. Enter Your Details</h4>
+                            <div class="form-group mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">{{ form.name.label }}</label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label for="{{ form.course.id_for_label }}" class="form-label">{{ form.course.label }}</label>
+                                {{ form.course }}
+                                {% if form.course.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.course.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.num_attendees.id_for_label }}" class="form-label">{{ form.num_attendees.label }}</label>
+                                {{ form.num_attendees }}
+                                {% if form.num_attendees.errors %}
+                                <div class="text-danger mt-2">
+                                    {% for error in form.num_attendees.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if form.num_attendees.help_text %}
+                                <small class="form-text text-muted mt-2">{{ form.num_attendees.help_text }}</small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="time-info">
+                            <p><i class="mdi mdi-information"></i> <strong>Note:</strong> All reservations are automatically set for 1 hour duration.</p>
+                            <p><i class="mdi mdi-clock-outline"></i> Your reservation will end exactly 1 hour after your selected start time.</p>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <button type="submit" class="btn btn-submit" id="submitBtn" disabled>
+                                <i class="mdi mdi-check-circle me-2"></i>Submit Reservation
+                            </button>
+                            <a href="/" class="btn btn-light ms-2">
+                                <i class="mdi mdi-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-white" id="successModalLabel">
+                        <i class="mdi mdi-check-circle me-2"></i>Reservation Submitted!
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="mdi mdi-check-circle text-success" style="font-size: 64px;"></i>
+                    <h4 class="mt-3 mb-2">Success!</h4>
+                    <p class="mb-0">Your reservation has been submitted successfully.</p>
+                    <p class="text-muted">You can view your reservation details on the dashboard.</p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <a href="/" class="btn btn-submit">
+                        <i class="mdi mdi-view-dashboard me-2"></i>Go to Dashboard
+                    </a>
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                        <i class="mdi mdi-close me-2"></i>Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Function to check if form is valid
+            function checkFormValidity() {
+                const date = $('#reservation_date').val();
+                const time = $('#reservation_time').val();
+                const room = $('#id_room').val();
+                const name = $('#id_name').val();
+                const course = $('#id_course').val();
+                const attendees = $('#id_num_attendees').val();
+                
+                const isValid = date && time && room && name && course && attendees;
+                $('#submitBtn').prop('disabled', !isValid);
+            }
+
+            // Function to update end time
+            function updateEndTime() {
+                const startTime = $('#reservation_time').val();
+                if (startTime) {
+                    const [hours, minutes] = startTime.split(':');
+                    const endHour = (parseInt(hours) + 1).toString().padStart(2, '0');
+                    $('#end_time').val(`${endHour}:${minutes}`);
+                }
+            }
+
+            // Function to check room availability
+            function checkRoomAvailability() {
+                const date = $('#reservation_date').val();
+                const time = $('#reservation_time').val();
+                const roomSelect = $('#id_room');
+                
+                if (date && time) {
+                    $.ajax({
+                        url: '{% url "get_available_rooms" %}',
+                        data: {
+                            'date': date,
+                            'time': time
+                        },
+                        success: function(data) {
+                            roomSelect.empty().prop('disabled', false);
+                            roomSelect.append($('<option>', {
+                                value: '',
+                                text: 'Select a room'
+                            }));
+                            
+                            let availableRoomsHtml = '<div class="mt-3">';
+                            data.rooms.forEach(function(room) {
+                                const optionClass = room.available ? '' : 'text-muted';
+                                const optionText = `${room.name} (Capacity: ${room.capacity})`;
+                                
+                                if (room.available) {
+                                    roomSelect.append($('<option>', {
+                                        value: room.id,
+                                        text: optionText,
+                                        class: optionClass
+                                    }));
+                                }
+                                
+                                const statusBadge = room.available ? 
+                                    '<span class="badge bg-success">Available</span>' : 
+                                    '<span class="badge bg-danger">Unavailable</span>';
+                                
+                                availableRoomsHtml += `
+                                    <div class="d-flex justify-content-between align-items-center p-2 border-bottom">
+                                        <div>
+                                            <strong>${room.name}</strong>
+                                            <small class="text-muted d-block">Capacity: ${room.capacity} people</small>
+                                        </div>
+                                        ${statusBadge}
+                                    </div>`;
+                            });
+                            availableRoomsHtml += '</div>';
+                            $('#roomAvailabilityInfo').html(availableRoomsHtml);
+                            checkFormValidity();
+                        }
+                    });
+                } else {
+                    roomSelect.empty().prop('disabled', true)
+                        .append($('<option>', {
+                            value: '',
+                            text: 'Please select date and time first'
+                        }));
+                    $('#roomAvailabilityInfo').empty();
+                    checkFormValidity();
+                }
+            }
+
+            // Event handlers
+            $('#reservation_date, #reservation_time').change(function() {
+                updateEndTime();
+                checkRoomAvailability();
+            });
+
+            // Add change event handlers for all form fields
+            $('#id_room, #id_name, #id_course, #id_num_attendees').change(checkFormValidity);
+            $('#id_name').on('input', checkFormValidity);
+
+            // Form submission handling
+            $('#reservationForm').submit(function(e) {
+                e.preventDefault();
+                
+                $.ajax({
+                    url: '{% url "make_reservation" %}',
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $('#successModal').modal('show');
+                            // Reset form
+                            $('#reservationForm')[0].reset();
+                            $('#end_time').val('');
+                            $('#id_room').empty().prop('disabled', true)
+                                .append($('<option>', {
+                                    value: '',
+                                    text: 'Please select date and time first'
+                                }));
+                            $('#roomAvailabilityInfo').empty();
+                            checkFormValidity();
+                        }
+                    },
+                    error: function(xhr) {
+                        // Handle errors
+                        let errorMessage = 'An error occurred. Please try again.';
+                        if (xhr.responseJSON && xhr.responseJSON.errors) {
+                            errorMessage = xhr.responseJSON.errors.join('<br>');
+                        }
+                        alert(errorMessage);
+                    }
+                });
+            });
+
+            // Initial form validation check
+            checkFormValidity();
+        });
+    </script>
+</body>
+</html> 

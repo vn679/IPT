@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 50 50">
+  <style>
+    .logo-text { font: bold 24px sans-serif; fill: #b66dff; }
+  </style>
+  <text x="5" y="35" class="logo-text">RRS</text>
+</svg> 

@@ -1,0 +1,42 @@
+{% load static %}
+<nav class="sidebar sidebar-offcanvas" id="sidebar">
+  <ul class="nav">
+    <li class="nav-item">
+      <a class="nav-link" href="/">
+        <div class="nav-content">
+          <span class="menu-title">Dashboard</span>
+          <i class="mdi mdi-home menu-icon"></i>
+        </div>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'make_reservation' %}">
+        <div class="nav-content">
+          <span class="menu-title">Make Reservation</span>
+          <i class="mdi mdi-calendar-plus menu-icon"></i>
+        </div>
+      </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="/rooms">
+        <div class="nav-content">
+          <span class="menu-title">Rooms</span>
+          <i class="mdi mdi-door menu-icon"></i>
+        </div>
+      </a>
+    </li>
+  </ul>
+  
+  <!-- Admin Profile Section -->
+  <div class="admin-profile-section" style="position: absolute; bottom: 0; left: 0; right: 0; padding: 1rem; background: white; border-top: 1px solid #e5e7eb;">
+    <div class="d-flex align-items-center">
+      <div class="me-3">
+        <i class="mdi mdi-account-circle" style="font-size: 2.5rem; color: #808080;"></i>
+      </div>
+      <div>
+        <p class="mb-1" style="color: #808080; font-weight: 500;">Admin</p>
+        <small class="text-muted">System Administrator</small>
+      </div>
+    </div>
+  </div>
+</nav>
